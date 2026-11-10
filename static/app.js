@@ -35,7 +35,7 @@ async function showMode() {
   try {
     const s = await api("/api/status");
     $("mode").innerHTML = s.mode === "live"
-      ? `Try-on: <b>live, Clothsy AI</b>${s.credits != null ? `, ${s.credits} credits left` : ""}`
+      ? `Try-on: <b>live, Clothsy AI</b>${s.credits != null ? `, ${s.credits} credits left` : ""} (sample figures are drawings and use our stand-in)`
       : `Try-on: <b>mock</b> (no API key set; your own photo gets a pasted stand-in` +
         (s.recorded ? `, sample figures replay recorded live results)` : `)`);
   } catch { $("mode").textContent = "Try-on service status unknown"; }
@@ -139,7 +139,8 @@ function showResult(job, j) {
   $("slider").value = 100;
   photo.style.setProperty("--reveal", "100%");
   $("compare").hidden = false;
-  const mock = j.mode === "mock" ? " Mock: pasted, not generated."
+  const mock = j.drawing_in_live ? " This is one of our drawn figures, which the live API rightly refuses (it only accepts photos of a real adult), so this preview is our stand-in: pasted, not generated."
+    : j.mode === "mock" ? " Mock: pasted, not generated."
     : j.replay ? ` Made by the Clothsy AI API on ${j.recorded_at}, replayed.` : "";
   $("caption").textContent = `AI-generated try-on. The real fit may differ.${mock}`;
 

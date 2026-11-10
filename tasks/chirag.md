@@ -24,10 +24,13 @@ Deadline: **25 Nov 2026, 5:00 PM IST** on Devpost. Code freeze **23 Nov, 9 PM IS
    `$env:HTF_TRYON_API_KEY="clothsy_live_..."`. Check: `python -m uvicorn app:app --port 8790`, the header
    must say "live, Clothsy AI, 20 credits left".
 2. [ ] **Ask for credits.** Email hackthefashion@fabricvton.com and contact@fabricvton.com: we're a registered
-   team, 20 free credits, need ~100 for the latency report. Also ask them to confirm Clothsy AI is the required API.
-3. [ ] **First live try-on by hand** with sample figure A and the kurta. Our garments are drawings; if the API
-   answers `GARMENT_REJECTED` or `IMAGE_REJECTED`, tell Ayush (he'll swap in product photos we have rights to).
-4. [ ] **Real numbers:** `python scripts/live_check.py --n 6` (up to 12 credits; it checks key and credits first). Commit `results/`. Then fill the
+   team, 20 free credits, need ~100 for the latency report and judges' testing. Ask for a **key with its own
+   allowance for judges** (the API supports keys with `scope: "key"`), and ask them to confirm Clothsy AI is the required API.
+3. [x] Key set and checked (10 Nov): 20 credits. The API refuses our drawn figures (`PERSON_PHOTO_REJECTED`), no credit used.
+4. [ ] **Real numbers need one real photo.** A team member who is 18+ and agrees: a full-length, plain-background
+   photo, saved OUTSIDE the repo. Write "I agree to my photo being used for our try-on tests and demo video" with your
+   name and the date in your own task file. Then `python scripts/live_check.py --photo <path> --n 8` (up to 8 credits).
+   Keep about 4 credits for judges. If it answers `GARMENT_REJECTED`, tell Ayush (product photos we have rights to). Commit `results/`. Then fill the
    {FILL} lines in `docs/DEVPOST.md` from `results/LATENCY.md` and update the proof card in `video/scenes.html`.
 5. [ ] **Submit on Devpost** (the draft is already started). Paste `docs/DEVPOST.md`, upload
    `docs/screenshots/`, add the YouTube link from Ayush. Submit at least an hour early.

@@ -67,20 +67,23 @@ using the Clothsy AI Try-on API as documented:
 The colour check: a median-cut palette of the garment, then each main colour must cover enough of the area
 that changed between your photo and the result, using CIE76 Delta E in CIELAB.
 
-31 automated tests, including the real-API client against a fake server that follows the documented
+35 automated tests, including the real-API client against a fake server that follows the documented
 contract. GitHub Actions runs the tests, the latency benchmark and an accessibility check: 0 axe-core
 problems on our page, as first loaded and with a finished try-on, at desktop, tablet and phone widths.
 
 ### Latency and accuracy
 `bench.py` runs the full pipeline (upload, try-on, check, retry, cache) and writes every try-on to
 `results/latency.csv`.
-- Live API: p50 {FILL} s from click to checked result, p95 {FILL} s; {FILL} of {FILL} shown first time,
-  {FILL} retried and passed, {FILL} held back.
-- A repeat of the same photo and garment on one visit comes back from memory in {FILL} s.
+- Live API (real, 10 Nov 2026): our key works, and the API refused all 8 try-on requests made with our drawn
+  sample figures before generating anything (`PERSON_PHOTO_REJECTED`, no credit used). Our page showed the
+  documented message each time. In live mode the drawings now use our labelled stand-in; only real photos
+  reach the API.
+- Live API with a real photo (a team member, 18+, with consent): p50 {FILL} s from click to checked result, p95
+  {FILL} s; {FILL} of {FILL} shown first time, {FILL} retried and passed, {FILL} held back.
 - Our own overhead around the API (mock run, measured): p50 0.43 s, p95 0.44 s over 30 try-ons, including the
   checks; a cached repeat takes 0.0125 s (median).
-- Live numbers come from one command, `python scripts/live_check.py --n 6`, which checks the key and credits,
-  runs the try-ons through the whole pipeline and prints p50/p95.
+- Live numbers come from one command, `python scripts/live_check.py --photo <photo> --n 6`, which checks the key
+  and credits, runs the try-ons through the whole pipeline and prints p50/p95.
 
 ### Challenges
 The Devpost pages never named the API, so we found the organiser's public developer API ourselves and built
@@ -104,8 +107,9 @@ python, fastapi, pillow, numpy, httpx, javascript, html, css, clothsy-ai-api, gi
 - Code: https://github.com/thegoodengineers/trusted-tryon (MIT)
 - Video: {FILL YouTube link}
 - Testing access: run locally (README, 4 commands). No login. `/?demo=1` runs the whole story with our own
-  drawn sample figure. Without a key it runs on a clearly labelled mock; with `HTF_TRYON_API_KEY` it calls
-  the real API.
+  drawn sample figure. Without a key it runs on a clearly labelled mock; with `HTF_TRYON_API_KEY` your own
+  photo goes to the real API (1 credit per try-on), while the drawn sample figures use the labelled stand-in,
+  because the API only accepts photos of real adults.
 
 ## New or existing project
 New. Started 10 Nov 2026, after the submission period opened (6 Nov). Every commit is in the repo history.

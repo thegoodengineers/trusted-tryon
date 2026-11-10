@@ -105,6 +105,7 @@ def test_live_check_fails_loudly_without_a_key():
 def test_live_results_for_sample_figures_are_recorded_and_replayed_free(web, monkeypatch, tmp_path):
     monkeypatch.setattr(server, "RECORDED", tmp_path)
     monkeypatch.setattr(server, "REPLAY", True)
+    monkeypatch.setattr(server, "DRAWINGS", set())  # treat ravi as a consenting photo sample, not a drawing
     monkeypatch.setattr(server.client, "mode", "live")  # pretend the result came from the API
     sid = upload(web).json()["session"]  # ravi.png is one of our drawn sample figures
     _, j = finish(web, sid, "breton-tee")
@@ -129,3 +130,31 @@ def test_a_shoppers_own_photo_is_never_recorded(web, monkeypatch, tmp_path):
     sid = upload(web, data=b.getvalue()).json()["session"]
     finish(web, sid, "breton-tee")
     assert list(tmp_path.iterdir()) == []
+
+
+def test_in_live_mode_drawn_figures_use_the_labelled_stand_in(web, monkeypatch):
+    calls = []
+    monkeypatch.setattr(server.client, "mode", "live")
+    monkeypatch.setattr(server.client, "run", lambda *a, **k: calls.append(1))
+    monkeypatch.setattr(server, "stand_in", MockTryOnFast())
+    sid = upload(web).json()["session"]
+    _, j = finish(web, sid, "denim-jacket")
+    assert not calls and j["mode"] == "mock" and j["drawing_in_live"] is True
+
+
+def MockTryOnFast():
+    from tryon_client import MockTryOn
+    return MockTryOn()
+
+
+def test_live_budget_stops_spending_and_says_so(web, monkeypatch):
+    monkeypatch.setattr(server.client, "mode", "live")
+    monkeypatch.setattr(server, "LIVE_BUDGET", 1)
+    monkeypatch.setattr(server, "live_spent", [1])
+    from PIL import Image
+    import io
+    b = io.BytesIO()
+    Image.open("static/models/ravi.png").rotate(3).save(b, "PNG")
+    sid = upload(web, data=b.getvalue()).json()["session"]
+    _, j = finish(web, sid, "breton-tee")
+    assert j["error"]["code"] == "DEMO_BUDGET" and "size guide" in j["error"]["message"]
