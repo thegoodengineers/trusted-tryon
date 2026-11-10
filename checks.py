@@ -18,6 +18,14 @@ DARK, BRIGHT = 55, 215  # mean grey level
 BLUR = 25.0  # variance of the Laplacian on a 512 px grey copy; below this the photo looks soft
 DELTA_E = 14.0  # "same colour" for a shopper's eye under different light
 FOUND_RATIO = 0.25  # a garment colour is present if, in the changed area, it covers >= 25% of its share of the product
+# Second, independent way to find a colour (added 10 Nov after the first 8 live results): on the person (the photo's
+# backdrop excluded, found by the same flood fill as for product photos), the colour covers more of the result than of
+# the shopper's photo by at least 2% of its share of the garment, so it came from the garment. The changed-area test
+# alone raised 2 false alarms in 8 live try-ons (navy stripes over a black sweater were too similar to count as
+# "changed"; a red dress's changed area also took in re-rendered arms). The backdrop is excluded because the API
+# re-renders it slightly warmer, which made "cream" appear everywhere. Measured on all 8 live results: every real
+# colour clears 2% of its share; every wrong-colour control stays under it. See results/RECHECK.md.
+EXCESS_RATIO = 0.02
 CHANGED = 6.0  # mean absolute difference (0-255) below which the result is basically the original photo
 
 
@@ -119,7 +127,11 @@ def result_check(garment: bytes, person: bytes, result: bytes):
     changed = diff_px > 30  # where the try-on differs from the shopper's photo: the garment area
     region = to_lab(r_px[changed]) if changed.any() else np.zeros((1, 3))
     colours = palette(g)
-    found = [share_near(region, rgb) >= FOUND_RATIO * share for rgb, share in colours]
+    person = garment_mask(Image.fromarray(p_px.astype("uint8")))  # not the backdrop
+    r_fg, p_fg = to_lab(r_px[person]), to_lab(p_px[person])
+    found = [share_near(region, rgb) >= FOUND_RATIO * share
+             or share_near(r_fg, rgb) - share_near(p_fg, rgb) >= EXCESS_RATIO * share
+             for rgb, share in colours]
     weight = sum(s for _, s in colours) or 1
     score = sum(s for (_, s), f in zip(colours, found) if f) / weight
     swatches = [{"hex": "#%02x%02x%02x" % tuple(c), "name": colour_name(c), "share": round(s, 3), "found": bool(f)}

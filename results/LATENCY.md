@@ -6,9 +6,9 @@ refused before generating anything (no credit used) are counted separately.
 
 | Mode | Try-ons asked | Produced an image | p50 wall (s) | p95 wall (s) | Median cached repeat (s) | Shown first time | Retried and passed | Held back | Refused by the API | AI label in file |
 |---|---|---|---|---|---|---|---|---|---|---|
-| live | 9 | 0 | - | - | - | 0 | 0 | 0 | 8 PERSON_PHOTO_REJECTED, 1 NETWORK | 0 of 0 |
+| live | 17 | 8 | 19.79 | 24.76 | 0.0109 | 6 | 0 | 2 | 8 PERSON_PHOTO_REJECTED, 1 NETWORK | 8 of 8 |
 | mock | 30 | 30 | 0.43 | 0.44 | 0.0125 | 29 | 1 | 0 | 0 | 0 of 30 |
 
 Mock rows measure only our own pipeline (upload, checks, retry, cache) around a paste-on stand-in, plus a deliberate colour fault on the kurta's first try after each server start. They say nothing about the real API's speed or accuracy. Live rows come from the Clothsy AI API.
 
-Last run: 2026-11-10T19:57:34 on Windows-AMD64-Chirag, commit ad7f180.
+Last run: 2026-11-10T20:02:19 on Windows-AMD64-Chirag, commit 4834dea.
