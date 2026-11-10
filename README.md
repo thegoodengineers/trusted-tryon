@@ -17,8 +17,11 @@ by Chirag, Bhumika, Ayush and Abhijeet (The Good Engineers). Try-on by the
   shows the wrong colour, or looks like it fits when the size is wrong, adds to that problem.
 - A try-on image is drawn by a model. It shows colour and style on you. It is not drawn to scale, so it
   can't show fit, and nobody tells the shopper that.
-- So every result here comes with a **care label**: what we checked, what the picture can't tell you,
-  how long it took, and a stamp: *Checked*, *Checked twice* (first try was off, retried) or *Held back*.
+- So every result here comes with a **care label**: the product's colours found or missing, what we checked,
+  what the picture can't tell you, your size, how long it took, and a stamp: *Checked*, *Checked twice*
+  (first try was off, retried) or *Held back*.
+- **For everyone:** sizes XS to 4XL with the same fit guidance, and every result described in words for
+  screen-reader users, linked to the image and announced when ready.
 
 ## For judges, start here
 - **One click, no photo needed:** run it (below) and open `http://localhost:8790/?demo=1`. It uses our own
@@ -27,7 +30,7 @@ by Chirag, Bhumika, Ayush and Abhijeet (The Good Engineers). Try-on by the
   stamped "MOCK - not real"). Set `HTF_TRYON_API_KEY` and the same code calls the real API.
 - **Live in one command:** `python scripts/live_check.py --n 6` once the key is set: checks the key and credits,
   runs 6 live try-ons through the full pipeline, writes `results/`, prints p50/p95, exits non-zero on any problem.
-- **Tests:** 29 pytest tests, including the real-API client against a fake server that follows the documented
+- **Tests:** 31 pytest tests, including the real-API client against a fake server that follows the documented
   contract (retry 429 with `Retry-After` and the same `Idempotency-Key`, no retry on 4xx, poll until done).
 - **Accessibility:** 0 axe-core problems on our page, as first loaded and with a finished try-on, at 1440,
   1024 and 400 px (checked in CI with our own Ctrl+A11y tool).
