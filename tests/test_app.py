@@ -13,6 +13,7 @@ PHOTO = open("static/models/ravi.png", "rb").read()
 def web(monkeypatch):
     from tryon_client import MockTryOn
     monkeypatch.setattr(server, "client", MockTryOn())
+    monkeypatch.setattr(server, "REPLAY", False)
     for store in (server.garment_ids, server.photos, server.sessions, server.jobs):
         store.clear()
     return TestClient(server.app)
@@ -99,3 +100,32 @@ def test_live_check_fails_loudly_without_a_key():
     env = {k: v for k, v in os.environ.items() if k != "HTF_TRYON_API_KEY"}
     r = subprocess.run([sys.executable, "scripts/live_check.py"], env=env, capture_output=True, text=True)
     assert r.returncode == 2 and "HTF_TRYON_API_KEY is not set" in r.stderr
+
+
+def test_live_results_for_sample_figures_are_recorded_and_replayed_free(web, monkeypatch, tmp_path):
+    monkeypatch.setattr(server, "RECORDED", tmp_path)
+    monkeypatch.setattr(server, "REPLAY", True)
+    monkeypatch.setattr(server.client, "mode", "live")  # pretend the result came from the API
+    sid = upload(web).json()["session"]  # ravi.png is one of our drawn sample figures
+    _, j = finish(web, sid, "breton-tee")
+    assert (tmp_path / "ravi__breton-tee.img").read_bytes()[:4] == b"\x89PNG"
+    web.delete(f"/api/session/{sid}")
+    calls = []
+    monkeypatch.setattr(server.client, "run", lambda *a, **k: calls.append(1))
+    sid = upload(web).json()["session"]
+    _, again = finish(web, sid, "breton-tee")
+    assert again["replay"] is True and again["recorded_at"] and not calls
+    other = upload(web, data=open("static/models/asha.png", "rb").read()).json()["session"]
+    assert server.sessions[other]["sample"] == "asha"
+
+
+def test_a_shoppers_own_photo_is_never_recorded(web, monkeypatch, tmp_path):
+    from PIL import Image
+    import io
+    monkeypatch.setattr(server, "RECORDED", tmp_path)
+    monkeypatch.setattr(server.client, "mode", "live")
+    b = io.BytesIO()
+    Image.open("static/models/ravi.png").rotate(3).save(b, "PNG")  # any photo that isn't a sample figure
+    sid = upload(web, data=b.getvalue()).json()["session"]
+    finish(web, sid, "breton-tee")
+    assert list(tmp_path.iterdir()) == []

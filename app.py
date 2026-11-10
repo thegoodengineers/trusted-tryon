@@ -6,6 +6,7 @@ deletes them itself (its docs); we say so on the page.
 """
 import hashlib
 import json
+import os
 import pathlib
 import secrets
 import statistics
@@ -26,7 +27,36 @@ HERE = pathlib.Path(__file__).parent
 CATALOG = {g["id"]: g for g in json.loads((HERE / "catalog.json").read_text())}
 SESSION_TTL = 30 * 60
 GARMENT_ID_TTL = 23 * 3600  # API image ids last 24 h
-MAX_ATTEMPTS = 2  # one retry when the result fails our check; each attempt costs a credit if it finishes
+MAX_ATTEMPTS = int(os.environ.get("HTF_MAX_ATTEMPTS", "2"))  # 2 = one retry when our check fails; each finished attempt costs a credit
+# Recorded live results for our own drawn sample figures (never a shopper's photo): saved byte for byte from the
+# API the first time, then replayed for free and labelled as recorded. Judges and the demo never spend a credit twice.
+RECORDED = HERE / "results/live"
+REPLAY = os.environ.get("HTF_REPLAY", "1") != "0"
+
+
+def _sample_hashes():
+    out = {}
+    for f in sorted((HERE / "static/models").glob("*.png")):
+        _, clean = checks.photo_check(f.read_bytes())
+        out[hashlib.sha256(clean).hexdigest()] = f.stem
+    return out
+
+
+SAMPLES = _sample_hashes()
+
+
+def recorded(sample, garment):
+    meta, img = RECORDED / f"{sample}__{garment}.json", RECORDED / f"{sample}__{garment}.img"
+    if not (meta.exists() and img.exists()):
+        return None
+    return {**json.loads(meta.read_text()), "image": img.read_bytes()}
+
+
+def record(sample, garment, outcome):
+    RECORDED.mkdir(parents=True, exist_ok=True)
+    (RECORDED / f"{sample}__{garment}.img").write_bytes(outcome["image"])  # exact bytes: keeps the API's AI label
+    meta = {k: v for k, v in outcome.items() if k != "image"} | {"recorded_at": time.strftime("%Y-%m-%d")}
+    (RECORDED / f"{sample}__{garment}.json").write_text(json.dumps(meta, indent=1))
 
 # What each documented API error means for the shopper. Codes: https://clothsyai.fabricvton.com/docs/api/errors
 API_ERRORS = {
@@ -90,7 +120,7 @@ def status():
     except TryOnError:
         credits = None
     times = [h["total"] for h in history if not h["cached"]]
-    return {"mode": client.mode, "credits": credits, "tryons": len(history),
+    return {"mode": client.mode, "credits": credits, "tryons": len(history), "recorded": len(list(RECORDED.glob("*.json"))),
             "median_seconds": round(statistics.median(times), 2) if times else None}
 
 
@@ -131,7 +161,8 @@ async def photo(photo: UploadFile = File(...), consent: str = Form(""), adult: s
     except TryOnError as e:
         raise HTTPException(502, {"message": API_ERRORS.get(e.code, "The try-on service is unavailable. Try again shortly."), "findings": findings})
     with lock:
-        photos[sha] = {"created": time.time(), "sha": sha, "photo": clean, "person_id": person_id, "results": {}}
+        photos[sha] = {"created": time.time(), "sha": sha, "photo": clean, "person_id": person_id, "results": {},
+                       "sample": SAMPLES.get(sha)}
         sessions[sid] = photos[sha]
     return {"session": sid, "findings": findings, "upload_seconds": round(time.perf_counter() - t0, 3), "reused": False}
 
@@ -172,8 +203,12 @@ def start(ask: TryAsk):
     job = {"created": time.time(), "session": ask.session, "garment": ask.garment, "steps": [], "done": False}
     with lock:
         jobs[jid] = job
+    rec = REPLAY and s.get("sample") and recorded(s["sample"], ask.garment)
     if ask.garment in s["results"]:  # same photo, same garment: answer from memory
         job.update(s["results"][ask.garment], cached=True, done=True)
+        history.append({"total": 0.0, "cached": True})
+    elif rec:  # our sample figure, already tried on live: replay the recorded result, no credit spent
+        job.update(rec, cached=True, replay=True, done=True)
         history.append({"total": 0.0, "cached": True})
     else:
         threading.Thread(target=run_job, args=(job, s), daemon=True).start()
@@ -242,6 +277,8 @@ def run_job(job, s):
     job.update(outcome, done=True)
     if best:
         s["results"][job["garment"]] = {k: v for k, v in outcome.items()}
+        if client.mode == "live" and s.get("sample"):
+            record(s["sample"], job["garment"], outcome)
     history.append({"total": total, "cached": False})
 
 

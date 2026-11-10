@@ -28,6 +28,7 @@ def load_app(real):
     if not real:
         os.environ.pop("HTF_TRYON_API_KEY", None)
         os.environ.setdefault("HTF_MOCK_DELAY", "0")
+    os.environ["HTF_REPLAY"] = "0"  # always measure a fresh try-on, never a recorded replay
     os.chdir(HERE)
     import app as server
     return server

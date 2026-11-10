@@ -36,7 +36,8 @@ async function showMode() {
     const s = await api("/api/status");
     $("mode").innerHTML = s.mode === "live"
       ? `Try-on: <b>live, Clothsy AI</b>${s.credits != null ? `, ${s.credits} credits left` : ""}`
-      : `Try-on: <b>mock</b> (no API key set; results are pasted, not generated)`;
+      : `Try-on: <b>mock</b> (no API key set; your own photo gets a pasted stand-in` +
+        (s.recorded ? `, sample figures replay recorded live results)` : `)`);
   } catch { $("mode").textContent = "Try-on service status unknown"; }
 }
 
@@ -116,7 +117,8 @@ async function follow(job) {
   for (let i = 0; i < 160; i++) {
     const j = await api(`/api/tryon/${job}`);
     $("steps").innerHTML = '<li class="done">Photo checked</li>' +
-      (j.cached ? '<li class="done">Made earlier for this photo, shown from memory</li>' : "") +
+      (j.replay ? `<li class="done">Recorded live result for this sample figure (${esc(j.recorded_at)}), replayed: no credit used</li>`
+        : j.cached ? '<li class="done">Made earlier for this photo, shown from memory</li>' : "") +
       j.steps.map((s) => `<li class="${s.state}">${esc(s.text)}</li>`).join("");
     if (j.done) return showResult(job, j);
     await new Promise((r) => setTimeout(r, 900));
@@ -137,7 +139,8 @@ function showResult(job, j) {
   $("slider").value = 100;
   photo.style.setProperty("--reveal", "100%");
   $("compare").hidden = false;
-  const mock = j.mode === "mock" ? " Mock: pasted, not generated." : "";
+  const mock = j.mode === "mock" ? " Mock: pasted, not generated."
+    : j.replay ? ` Made by the Clothsy AI API on ${j.recorded_at}, replayed.` : "";
   $("caption").textContent = `AI-generated try-on. The real fit may differ.${mock}`;
 
   const stamp = $("stamp");
@@ -163,7 +166,9 @@ function showResult(job, j) {
   describe();
   $("cant").innerHTML = j.cant_tell.map((t) => `<li>${esc(t)}</li>`).join("");
   const n = j.attempts.length;
-  $("speed").textContent = j.cached
+  $("speed").textContent = j.replay
+    ? `Live, on ${j.recorded_at}: ready in ${j.total_seconds} s, ${n} ${n === 1 ? "attempt" : "attempts"}. Replayed now, instantly.`
+    : j.cached
     ? `Instant: this photo and item were made earlier (first time took ${j.total_seconds} s).`
     : `Ready in ${j.total_seconds} s, ${n} ${n === 1 ? "attempt" : "attempts"}` +
       (n > 1 ? ` (${j.attempts.map((a) => a.seconds + " s").join(" + ")})` : "") + ".";
