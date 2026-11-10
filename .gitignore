@@ -6,4 +6,3 @@ video/vo/
 video/build/
 video/renders/
 *.pyc
-.claude/
