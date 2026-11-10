@@ -1,0 +1,43 @@
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest -q
+      - name: Latency benchmark on the mock (our own pipeline overhead)
+        run: python bench.py --n 1
+  a11y:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: thegoodengineers/ctrl-a11y
+          path: ctrl-a11y
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python -m pip install -r requirements.txt -r ctrl-a11y/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - run: npm ci
+        working-directory: ctrl-a11y
+      - name: Our page passes Ctrl+A11y (axe-core), as first loaded and with a finished try-on
+        run: |
+          python -m uvicorn app:app --port 8790 &
+          sleep 4
+          python ctrl-a11y/a11y.py http://localhost:8790/ --no-ai --max-after 0
+          python tools/screenshots.py http://localhost:8790 --axe ctrl-a11y/node_modules/axe-core/axe.min.js

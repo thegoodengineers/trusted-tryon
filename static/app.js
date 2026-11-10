@@ -24,6 +24,11 @@ async function init() {
   renderProduct();
   showMode();
   if (state.session) setHaveStep(true);
+  if (new URLSearchParams(location.search).get("demo") === "1") {  // judges' one-click story: sample figure + size check
+    $("chest").value = 92; $("waist").value = 84; $("hip").value = 96;
+    await checkFit();
+    document.querySelector('[data-sample="asha"]').click();
+  }
 }
 
 async function showMode() {
