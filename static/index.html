@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trusted try-on: see it on you, and know what the picture can't tell you</title>
+<link rel="stylesheet" href="/static/theme.css">
+<link rel="stylesheet" href="/static/page.css">
+</head>
+<body>
+<header class="bar">
+  <p class="store">Mill Lane <span>demo store</span></p>
+  <p class="mode" id="mode">Connecting…</p>
+</header>
+
+<main>
+  <section class="product" aria-labelledby="title">
+    <div class="stage">
+      <figure id="figure">
+        <div class="frame" id="frame">
+          <img id="productImg" alt="">
+          <img id="resultImg" alt="" hidden>
+          <img id="photoImg" alt="" hidden>
+        </div>
+        <figcaption id="caption">Product photo</figcaption>
+      </figure>
+      <div class="compare" id="compare" hidden>
+        <label for="slider">Compare with your photo</label>
+        <input type="range" id="slider" min="0" max="100" value="100">
+      </div>
+    </div>
+
+    <div class="buy">
+      <h1 id="title">…</h1>
+      <p class="price" id="price"></p>
+      <p class="about" id="about"></p>
+
+      <fieldset class="sizes">
+        <legend>Size</legend>
+        <div id="sizes"></div>
+      </fieldset>
+
+      <section class="try" aria-labelledby="tryHead">
+        <h2 id="tryHead">See it on you</h2>
+        <div id="photoStep">
+          <label class="file" for="photo">Choose a photo of yourself</label>
+          <input type="file" id="photo" accept="image/jpeg,image/png">
+          <p class="hint">One adult, standing, facing the camera, full length if you can.</p>
+          <label class="check"><input type="checkbox" id="adult"> I'm 18 or over and this is a photo of me.</label>
+          <label class="check"><input type="checkbox" id="consent"> I agree to it being sent to a try-on service to make this preview.
+            <a href="#privacy">What happens to it</a></label>
+          <button class="go" id="go" type="button">See it on me</button>
+          <p class="or">No photo handy? <button class="link" type="button" data-sample="asha">Use sample figure A</button>
+            or <button class="link" type="button" data-sample="ravi">sample figure B</button> (our own drawings, not real people).</p>
+        </div>
+        <div id="haveStep" hidden>
+          <p>Using your photo for every item on this visit. <button class="link" type="button" id="forget">Forget my photo</button></p>
+          <button class="go" id="again" type="button">Try this on</button>
+        </div>
+        <ol class="steps" id="steps" aria-live="polite"></ol>
+        <p class="error" id="error" role="alert"></p>
+      </section>
+    </div>
+  </section>
+
+  <section class="label" id="label" aria-labelledby="labelHead" hidden>
+    <div class="stitch">
+      <h2 id="labelHead">What this try-on can and can't tell you</h2>
+      <p class="stamp" id="stamp"></p>
+      <div class="cols">
+        <div>
+          <h3>We checked</h3>
+          <ul class="facts" id="facts"></ul>
+        </div>
+        <div>
+          <h3>It can't tell you</h3>
+          <ul class="cant" id="cant"></ul>
+          <h3>Speed</h3>
+          <p class="speed" id="speed"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fit" aria-labelledby="fitHead">
+    <h2 id="fitHead">Will it fit? Ask the size chart, not the picture</h2>
+    <p class="hint">Your body measurements in centimetres. We only use them to read the size chart: they are not stored and never go to the try-on service.</p>
+    <form id="fitForm" class="measures">
+      <label>Chest <input type="number" inputmode="decimal" min="50" max="200" name="chest" id="chest"></label>
+      <label>Waist <input type="number" inputmode="decimal" min="40" max="200" name="waist" id="waist"></label>
+      <label>Hip <input type="number" inputmode="decimal" min="50" max="200" name="hip" id="hip"></label>
+      <button class="ghost" type="submit">Check sizes</button>
+    </form>
+    <div id="fitOut" aria-live="polite"></div>
+  </section>
+
+  <section class="rail" aria-labelledby="railHead">
+    <h2 id="railHead">Try another</h2>
+    <ul id="rail"></ul>
+  </section>
+</main>
+
+<footer id="privacy">
+  <h2>Your photo</h2>
+  <p>It is held in this server's memory for your visit only (30 minutes, or until you choose Forget my photo) and never
+    written to disk here. To make the preview it is sent to the Clothsy AI try-on service, which keeps uploaded photos for up
+    to 35 days and then deletes them. Photos are shrunk and re-saved first, which removes location data.
+    Every result is an AI-generated preview and is labelled as one.</p>
+  <p class="small">Product images and sample figures are our own drawings. Built for HackTheFashion Global'26 by The Good Engineers.</p>
+</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>

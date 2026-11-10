@@ -1,0 +1,38 @@
+/* Trusted try-on theme. Rules:
+   1. One action colour (cobalt). Green/amber/red only ever mean pass/warn/fail.
+   2. One family, Archivo; width carries the voice: wide for the product name, narrow for label text.
+   3. The care label is the one bold object. Everything else stays quiet: no shadows, no gradients.
+   4. Left aligned. Lines under 70 characters.
+   5. Motion only answers an action, and stops under prefers-reduced-motion. */
+@font-face {
+  font-family: "Archivo";
+  src: url("/static/fonts/Archivo.ttf") format("truetype");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+}
+:root {
+  --paper: #f5f7fa;
+  --label: #ffffff;
+  --ink: #1b2340;
+  --muted: #4a5272;
+  --rule: #cdd3e0;
+  --cobalt: #2747d9;
+  --cobalt-ink: #ffffff;
+  --tape: #e8b923;
+  --pass: #1f7a4d;
+  --warn: #8a4f00;
+  --fail: #b3261e;
+  --r-small: 4px;
+  --r-label: 2px;
+  --font: "Archivo", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.5; }
+body { margin: 0; }
+img { max-width: 100%; display: block; }
+a { color: var(--cobalt); }
+:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 2px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
