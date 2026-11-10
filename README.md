@@ -25,7 +25,9 @@ by Chirag, Bhumika, Ayush and Abhijeet (The Good Engineers). Try-on by the
   drawn sample figure, runs a try-on, and fills in the size guide.
 - **Works today without a key** on a clearly labelled mock (the page header says *mock*, every mock image is
   stamped "MOCK - not real"). Set `HTF_TRYON_API_KEY` and the same code calls the real API.
-- **Tests:** 27 pytest tests, including the real-API client against a fake server that follows the documented
+- **Live in one command:** `python scripts/live_check.py --n 6` once the key is set: checks the key and credits,
+  runs 6 live try-ons through the full pipeline, writes `results/`, prints p50/p95, exits non-zero on any problem.
+- **Tests:** 29 pytest tests, including the real-API client against a fake server that follows the documented
   contract (retry 429 with `Retry-After` and the same `Idempotency-Key`, no retry on 4xx, poll until done).
 - **Accessibility:** 0 axe-core problems on our page, as first loaded and with a finished try-on, at 1440,
   1024 and 400 px (checked in CI with our own Ctrl+A11y tool).
@@ -50,7 +52,8 @@ All API calls live in [`tryon_client.py`](tryon_client.py).
 6. Every documented error code becomes a plain sentence (`PERSON_PHOTO_REJECTED` -> "needs a clear photo of
    exactly one adult"; `INSUFFICIENT_CREDITS` -> try-on paused, size guide still works).
 7. `GET /account` shows credits left in the header.
-8. Same photo + same garment on one visit comes back from memory instantly.
+8. The same photo (matched by its SHA-256) is uploaded once and each garment is generated once: adding the same
+   photo again, or replaying the demo, comes back from memory instantly. Forget my photo clears all of it.
 
 ## Fit from the size chart ([`fit.py`](fit.py))
 Each product has a size chart and the room ("ease") it is designed to have at chest, waist and hip: a wrap

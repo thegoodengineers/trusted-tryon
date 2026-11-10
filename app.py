@@ -4,6 +4,7 @@ Privacy: shopper photos and results live only in this process's memory, for one 
 until "Forget my photo"). Nothing is written to disk. The API keeps uploaded photos up to 35 days and
 deletes them itself (its docs); we say so on the page.
 """
+import hashlib
 import json
 import pathlib
 import secrets
@@ -43,12 +44,18 @@ app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 client = get_client()
 lock = threading.Lock()
 sessions, jobs, garment_ids, history = {}, {}, {}, []  # ponytail: in-process memory; one worker only
+# The same photo (by SHA-256 of its cleaned bytes) shares one entry: one upload, one result per garment.
+# So a shopper who adds the same photo again, or a demo replayed within 30 minutes, never waits twice.
+# sessions[sid] points at the shared entry; "Forget my photo" removes the entry and every session using it.
+photos = {}
 
 
 def expire():
     now = time.time()
     with lock:
-        for sid in [s for s, v in sessions.items() if now - v["created"] > SESSION_TTL]:
+        for sha in [h for h, v in photos.items() if now - v["created"] > SESSION_TTL]:
+            photos.pop(sha)
+        for sid in [s for s, v in sessions.items() if v["sha"] not in photos]:
             sessions.pop(sid)
         for jid in [j for j, v in jobs.items() if now - v["created"] > SESSION_TTL]:
             jobs.pop(jid)
@@ -112,15 +119,21 @@ async def photo(photo: UploadFile = File(...), consent: str = Form(""), adult: s
     findings, clean = checks.photo_check(await photo.read())
     if clean is None:
         raise HTTPException(422, {"message": findings[-1]["text"], "findings": findings})
+    sha = hashlib.sha256(clean).hexdigest()
+    sid = secrets.token_urlsafe(16)
+    if sha in photos:  # same photo already uploaded on this server in the last 30 minutes: reuse it
+        with lock:
+            sessions[sid] = photos[sha]
+        return {"session": sid, "findings": findings, "upload_seconds": 0.0, "reused": True}
     t0 = time.perf_counter()
     try:
         person_id = client.upload(clean, "image/jpeg")
     except TryOnError as e:
         raise HTTPException(502, {"message": API_ERRORS.get(e.code, "The try-on service is unavailable. Try again shortly."), "findings": findings})
-    sid = secrets.token_urlsafe(16)
     with lock:
-        sessions[sid] = {"created": time.time(), "photo": clean, "person_id": person_id, "results": {}}
-    return {"session": sid, "findings": findings, "upload_seconds": round(time.perf_counter() - t0, 3)}
+        photos[sha] = {"created": time.time(), "sha": sha, "photo": clean, "person_id": person_id, "results": {}}
+        sessions[sid] = photos[sha]
+    return {"session": sid, "findings": findings, "upload_seconds": round(time.perf_counter() - t0, 3), "reused": False}
 
 
 @app.get("/api/photo/{sid}")
@@ -132,8 +145,15 @@ def photo_image(sid: str):
 @app.delete("/api/session/{sid}")
 def forget(sid: str):
     with lock:
-        sessions.pop(sid, None)
-        for jid in [j for j, v in jobs.items() if v["session"] == sid]:
+        entry = sessions.pop(sid, None)
+        if entry:
+            photos.pop(entry["sha"], None)
+            gone = {s for s, v in sessions.items() if v is entry} | {sid}
+            for s in gone:
+                sessions.pop(s, None)
+        else:
+            gone = {sid}
+        for jid in [j for j, v in jobs.items() if v["session"] in gone]:
             jobs.pop(jid)
     return {"forgotten": True}
 
@@ -152,7 +172,7 @@ def start(ask: TryAsk):
     job = {"created": time.time(), "session": ask.session, "garment": ask.garment, "steps": [], "done": False}
     with lock:
         jobs[jid] = job
-    if ask.garment in s["results"]:  # same photo, same garment: answer from this session's cache
+    if ask.garment in s["results"]:  # same photo, same garment: answer from memory
         job.update(s["results"][ask.garment], cached=True, done=True)
         history.append({"total": 0.0, "cached": True})
     else:

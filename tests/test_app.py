@@ -13,7 +13,8 @@ PHOTO = open("static/models/ravi.png", "rb").read()
 def web(monkeypatch):
     from tryon_client import MockTryOn
     monkeypatch.setattr(server, "client", MockTryOn())
-    server.garment_ids.clear()
+    for store in (server.garment_ids, server.photos, server.sessions, server.jobs):
+        store.clear()
     return TestClient(server.app)
 
 
@@ -76,3 +77,25 @@ def test_api_error_becomes_an_honest_message(web, monkeypatch):
 def test_fit_endpoint(web):
     r = web.post("/api/fit", json={"garment": "denim-jacket", "body": {"chest": 96, "waist": 88}}).json()
     assert r["size"] and r["confidence"] in ("high", "medium", "low")
+
+
+def test_same_photo_never_waits_twice_and_forget_clears_it(web):
+    first = upload(web).json()
+    _, j = finish(web, first["session"], "denim-jacket")
+    assert j["verdict"] == "shown"
+    second = upload(web).json()  # same photo again, a new visit
+    assert second["reused"] is True and len(server.client.images) == 2  # photo + garment uploaded once each
+    _, again = finish(web, second["session"], "denim-jacket")
+    assert again["cached"] is True
+    web.delete(f"/api/session/{second['session']}")
+    assert web.get(f"/api/photo/{first['session']}").status_code == 410  # forget removes every session of that photo
+    assert upload(web).json()["reused"] is False
+
+
+def test_live_check_fails_loudly_without_a_key():
+    import os
+    import subprocess
+    import sys
+    env = {k: v for k, v in os.environ.items() if k != "HTF_TRYON_API_KEY"}
+    r = subprocess.run([sys.executable, "scripts/live_check.py"], env=env, capture_output=True, text=True)
+    assert r.returncode == 2 and "HTF_TRYON_API_KEY is not set" in r.stderr
