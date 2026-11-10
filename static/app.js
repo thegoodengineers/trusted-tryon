@@ -35,9 +35,9 @@ async function showMode() {
   try {
     const s = await api("/api/status");
     $("mode").innerHTML = s.mode === "live"
-      ? `Try-on: <b>live, Clothsy AI</b>${s.credits != null ? `, ${s.credits} credits left` : ""} (sample figures are drawings and use our stand-in)`
+      ? `Try-on: <b>live, Clothsy AI</b>${s.credits != null ? `, ${s.credits} credits left` : ""} (sample photos replay recorded results: no credit used)`
       : `Try-on: <b>mock</b> (no API key set; your own photo gets a pasted stand-in` +
-        (s.recorded ? `, sample figures replay recorded live results)` : `)`);
+        (s.recorded ? `, sample photos replay recorded live results)` : `)`);
   } catch { $("mode").textContent = "Try-on service status unknown"; }
 }
 
@@ -117,7 +117,7 @@ async function follow(job) {
   for (let i = 0; i < 160; i++) {
     const j = await api(`/api/tryon/${job}`);
     $("steps").innerHTML = '<li class="done">Photo checked</li>' +
-      (j.replay ? `<li class="done">Recorded live result for this sample figure (${esc(j.recorded_at)}), replayed: no credit used</li>`
+      (j.replay ? `<li class="done">Recorded live result for this sample photo (${esc(j.recorded_at)}), replayed: no credit used</li>`
         : j.cached ? '<li class="done">Made earlier for this photo, shown from memory</li>' : "") +
       j.steps.map((s) => `<li class="${s.state}">${esc(s.text)}</li>`).join("");
     if (j.done) return showResult(job, j);

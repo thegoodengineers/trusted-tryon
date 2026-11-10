@@ -28,8 +28,8 @@
   .tape { height: 46px; width: 760px; margin: 40px 0 0; background: #e8b923; position: relative;
           background-image: repeating-linear-gradient(90deg, rgba(27,35,64,.55) 0 2px, transparent 2px 5%); }
   .tape span { position: absolute; top: -8px; bottom: -8px; left: 46%; width: 8px; background: #1b2340; }
-  .big { font-size: 120px; font-weight: 800; font-stretch: 112%; line-height: 1; }
-  .stats { display: flex; gap: 80px; margin-top: 40px; }
+  .big { font-size: 92px; font-weight: 800; font-stretch: 100%; line-height: 1; white-space: nowrap; }
+  .stats { display: flex; gap: 64px; margin-top: 30px; }
   .stats div p { font-size: 26px; max-width: 13ch; }
   .note { position: absolute; left: 110px; bottom: 54px; font-size: 20px; color: #4a5272; max-width: 60ch; }
   .in { animation: in .8s ease-out both; } .in2 { animation: in .8s .5s ease-out both; } .in3 { animation: in .8s 1s ease-out both; }
@@ -71,17 +71,17 @@
         <li class="ok">The API's AI label read from every result; <code>GET /account</code> for credits</li>
       </ul>
     </div>
-    <p class="note">This recording runs on our labelled mock (no key in the recording). With HTF_TRYON_API_KEY set, the same code calls the live API.</p>
+    <p class="note">Every try-on in this video was made live by the Clothsy AI API on 10 Nov 2026, recorded byte for byte and replayed. Sample shoppers: free stock photos from Unsplash by McFollis and Devin Santiago.</p>
   </section>
 
   <section class="card" id="proof">
     <h1 class="in">Checked, not claimed</h1>
     <div class="stats">
-      <div class="in2"><div class="big">31</div><p>automated tests pass</p></div>
-      <div class="in2"><div class="big">0</div><p>accessibility problems on our page (axe-core)</p></div>
-      <div class="in3"><div class="big">0.43 s</div><p>p50 added by our pipeline (mock run, 30 try-ons)</p></div>
+      <div class="in2"><div class="big">8 / 8</div><p>live try-ons made an image, all AI-labelled</p></div>
+      <div class="in2"><div class="big">19.8 s</div><p>p50 click to checked result, live (p95 24.8 s)</p></div>
+      <div class="in3"><div class="big">8 / 8</div><p>wrong-colour versions caught by our check</p></div>
     </div>
-    <p class="note">Numbers from pytest, our Ctrl+A11y check, and results/LATENCY.md (python bench.py).</p>
+    <p class="note">Live Clothsy AI API, 10 Nov 2026: results/LATENCY.md (scripts/live_check.py) and results/RECHECK.md.</p>
   </section>
 
   <section class="card" id="close">

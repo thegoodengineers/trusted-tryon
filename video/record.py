@@ -97,7 +97,10 @@ APP_SCENES = {"consent": app_consent, "tryon": app_tryon, "label": app_label, "c
 
 def main():
     (HERE / "renders").mkdir(exist_ok=True)
-    env = {k: v for k, v in os.environ.items() if k != "HTF_TRYON_API_KEY"} | {"HTF_MOCK_DELAY": "2.2"}
+    # With HTF_VIDEO_LIVE=1 the server gets the key, so the header shows the live API; every try-on in the video is a
+    # recorded live result for a sample photo (replayed, no credit). HTF_LIVE_BUDGET=1 caps any slip at one credit.
+    live = os.environ.get("HTF_VIDEO_LIVE") == "1"
+    env = {k: v for k, v in os.environ.items() if live or k != "HTF_TRYON_API_KEY"} | {"HTF_MOCK_DELAY": "2.2", "HTF_LIVE_BUDGET": "1"}
     server = subprocess.Popen([sys.executable, "-m", "uvicorn", "app:app", "--port", "8791"], cwd=ROOT, env=env)
     try:
         for _ in range(60):
@@ -111,10 +114,14 @@ def main():
 
 
 def record():
-    offsets = {}
+    only = {int(a) for a in sys.argv[1:] if a.isdigit()}  # e.g. `python record.py 10` re-records scene 10 only
+    offsets_path = HERE / "renders" / "offsets.json"
+    offsets = {int(k): v for k, v in json.loads(offsets_path.read_text()).items()} if only and offsets_path.exists() else {}
     with sync_playwright() as p:
         browser = p.chromium.launch()
         for n, scene in lines():
+            if only and n not in only:
+                continue
             kind, name = scene.split(":")
             length = seconds(n) + PAUSE
             ctx = browser.new_context(viewport=SIZE, record_video_dir=str(HERE / "renders" / "tmp"), record_video_size=SIZE)
@@ -135,7 +142,7 @@ def record():
             pathlib.Path(video.path()).replace(target)
             offsets[n] = round(start if kind == "card" else max(0.0, start - 0.2), 2)
             print(f"scene {n} {scene}: {length:.1f}s")
-    (HERE / "renders" / "offsets.json").write_text(json.dumps(offsets, indent=1))
+    offsets_path.write_text(json.dumps(offsets, indent=1))
 
 
 if __name__ == "__main__":
