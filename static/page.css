@@ -54,13 +54,17 @@ button { font: inherit; }
 .error { color: var(--fail); font-weight: 600; min-height: 0; margin: .6rem 0 0; }
 .error:empty { display: none; }
 
-/* The care label: the one bold object on the page. */
+/* The care label: the one bold object on the page. A woven neck label: navy woven band, white body, stitched edge. */
 .label { margin: 0 0 3rem; }
-.stitch { position: relative; background: var(--label); border-radius: var(--r-label); padding: clamp(1.2rem, 3vw, 2.2rem);
+.stitch { position: relative; background: var(--label); border-radius: var(--r-label); padding: 0 clamp(1.2rem, 3vw, 2.4rem) clamp(1.2rem, 3vw, 2.2rem);
   outline: 2px dashed var(--ink); outline-offset: -10px; }
-.stitch h2 { font-stretch: 75%; font-weight: 800; font-size: 1.5rem; max-width: 28rem; }
-.stitch h3, .facts, .cant, .speed { font-stretch: 75%; }
-.cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 2rem; }
+.weave { margin: 0 calc(-1 * clamp(1.2rem, 3vw, 2.4rem)) 1.4rem; padding: .7rem clamp(1.2rem, 3vw, 2.4rem); background: var(--ink); color: #fff;
+  font-weight: 800; font-stretch: 125%; letter-spacing: .02em; border-radius: var(--r-label) var(--r-label) 0 0;
+  background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 1px, transparent 1px 4px); }
+.weave span { font-weight: 400; font-stretch: 75%; opacity: .85; margin-left: .5rem; }
+.stitch h2 { font-stretch: 75%; font-weight: 800; font-size: clamp(1.5rem, 3vw, 2rem); max-width: 22rem; line-height: 1.1; }
+.stitch h3, .facts, .cant, .speed, .desc, .sizetag { font-stretch: 75%; }
+.cols { display: grid; grid-template-columns: 1.25fr 1fr .7fr; gap: 2rem; }
 .facts, .cant { list-style: none; padding: 0; margin: 0; }
 .facts li, .cant li { padding: .3rem 0 .3rem 1.7rem; position: relative; border-bottom: 1px solid var(--rule); max-width: 40rem; }
 .facts li::before { position: absolute; left: 0; font-weight: 800; }
@@ -68,13 +72,23 @@ button { font: inherit; }
 .facts .warn::before { content: "!"; color: var(--warn); left: .3rem; }
 .facts .fail::before, .facts .block::before { content: "✗"; color: var(--fail); }
 .cant li::before { content: "–"; position: absolute; left: .2rem; color: var(--muted); }
-.stamp { position: absolute; top: 1.4rem; right: 1.6rem; margin: 0; transform: rotate(-6deg); border: 3px double currentColor;
+.swatches { list-style: none; padding: 0; margin: 0 0 .5rem; display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; }
+.swatches li { display: flex; align-items: center; gap: .5rem; font-stretch: 75%; font-weight: 600; }
+.swatches .dot { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 2px solid var(--ink); position: relative; flex: none; }
+.swatches li::after { font-weight: 800; }
+.swatches .found::after { content: "✓"; color: var(--pass); }
+.swatches .missing::after { content: "✗"; color: var(--fail); }
+.swatches .missing .dot { background-image: linear-gradient(135deg, transparent 46%, var(--fail) 46% 54%, transparent 54%) !important; }
+.stamp { position: absolute; top: 4.2rem; right: 1.8rem; margin: 0; transform: rotate(-6deg); border: 3px double currentColor;
   border-radius: 6px; padding: .3rem .8rem; font-weight: 800; font-stretch: 112%; font-size: 1.05rem; text-align: center; line-height: 1.15; }
 .stamp small { display: block; font-weight: 600; font-size: .7rem; font-stretch: 80%; }
 .stamp.shown { color: var(--pass); }
 .stamp.retried { color: var(--warn); }
 .stamp.held { color: var(--fail); }
-.speed { margin: 0; }
+.speed, .sizetag { margin: 0; }
+.sizetag b { display: inline-block; font-size: 1.6rem; font-stretch: 112%; border: 2px solid var(--ink); padding: 0 .5rem; margin-right: .4rem; }
+.conf.high { color: var(--pass); } .conf.medium { color: var(--warn); } .conf.low { color: var(--fail); }
+.desc { max-width: 46rem; margin: 0; padding: .7rem .9rem; background: var(--paper); border-left: 4px solid var(--ink); }
 
 .fit { border-top: 1px solid var(--rule); padding: 2rem 0; }
 .measures { display: flex; gap: 1rem; flex-wrap: wrap; align-items: end; }
@@ -102,5 +116,6 @@ footer p { max-width: 44rem; }
 
 @media (max-width: 760px) {
   .product, .cols { grid-template-columns: 1fr; }
+  .cols { gap: .5rem; }
   .stamp { position: static; display: inline-block; margin: 0 0 .8rem; }
 }
