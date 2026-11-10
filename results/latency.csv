@@ -29,3 +29,11 @@ when,commit,machine,mode,model,garment,photo_upload_s,server_total_s,wall_s,atte
 2026-11-10T18:06:32,97bd0cb,Windows-AMD64-Chirag,mock,ravi,polka-wrap-dress,0.05,0.24,0.426,1,shown,1.0,False,0.0114,0,0
 2026-11-10T18:06:32,97bd0cb,Windows-AMD64-Chirag,mock,ravi,denim-jacket,0.05,0.26,0.429,1,shown,1.0,False,0.0111,0,0
 2026-11-10T18:06:33,97bd0cb,Windows-AMD64-Chirag,mock,ravi,logo-sweatshirt,0.05,0.25,0.43,1,shown,1.0,False,0.012,0,0
+2026-11-10T19:32:40,eb04ccd,Windows-AMD64-Chirag,live,asha,block-print-kurta,1.163,2.33,2.546,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:32:42,eb04ccd,Windows-AMD64-Chirag,live,asha,breton-tee,1.163,1.69,1.881,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:32:43,eb04ccd,Windows-AMD64-Chirag,live,asha,polka-wrap-dress,1.163,1.08,1.259,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:32:44,eb04ccd,Windows-AMD64-Chirag,live,asha,denim-jacket,1.163,0.95,1.044,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:32:45,eb04ccd,Windows-AMD64-Chirag,live,ravi,block-print-kurta,0.447,0.57,0.635,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:32:47,eb04ccd,Windows-AMD64-Chirag,live,ravi,breton-tee,0.447,1.72,1.883,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:33:01,eb04ccd,Windows-AMD64-Chirag,live,ravi,polka-wrap-dress,0.447,13.62,13.81,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:33:02,eb04ccd,Windows-AMD64-Chirag,live,ravi,denim-jacket,0.447,1.18,1.266,0,PERSON_PHOTO_REJECTED,,,,0,0

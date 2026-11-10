@@ -28,9 +28,15 @@ by Chirag, Bhumika, Ayush and Abhijeet (The Good Engineers). Try-on by the
   drawn sample figure, runs a try-on, and fills in the size guide.
 - **Works today without a key** on a clearly labelled mock (the page header says *mock*, every mock image is
   stamped "MOCK - not real"). Set `HTF_TRYON_API_KEY` and the same code calls the real API.
-- **Live in one command:** `python scripts/live_check.py --n 6` once the key is set: checks the key and credits,
-  runs 6 live try-ons through the full pipeline, writes `results/`, prints p50/p95, exits non-zero on any problem.
-- **Tests:** 31 pytest tests, including the real-API client against a fake server that follows the documented
+- **Live API, 10 Nov 2026 (key set, measured):** the key works (`GET /account`: 20 credits). All 8 live try-on
+  requests with our drawn sample figures were **refused by the API before generating** (`PERSON_PHOTO_REJECTED`:
+  not a photo of one adult), no credit used, and our page showed the documented message. That is the API's
+  safety rule doing its job, so in live mode the drawings now go to our labelled stand-in and only real photos reach the API.
+  See `results/LATENCY.md`.
+- **Live in one command:** `python scripts/live_check.py --photo <a consenting adult's photo, outside the repo> --n 6`
+  checks the key and credits, runs the try-ons through the full pipeline, writes `results/`, prints p50/p95, and
+  exits non-zero on any problem. The photo is never copied or committed; results only say "own-photo".
+- **Tests:** 35 pytest tests, including the real-API client against a fake server that follows the documented
   contract (retry 429 with `Retry-After` and the same `Idempotency-Key`, no retry on 4xx, poll until done).
 - **Accessibility:** 0 axe-core problems on our page, as first loaded and with a finished try-on, at 1440,
   1024 and 400 px (checked in CI with our own Ctrl+A11y tool).
@@ -96,8 +102,12 @@ Appends to `results/latency.csv` (wall time, attempts, verdict, colour score, ca
 retries, commit, machine) and rewrites `results/LATENCY.md`.
 
 ## Known limits (honest status)
-- **Not yet run against the live API**: we have no key in CI. The client follows the published docs and is
-  tested against a fake server; real latency and real fidelity numbers come when `bench.py --real` runs.
+- **No live image yet.** The live API refuses drawings, and we will only use a photo of a team member who is 18+
+  and agrees. Live latency and fidelity numbers come from `scripts/live_check.py --photo ...` with that photo.
+  CI never has a key and always runs on the mock.
+- **Hosted testing on our key costs credits:** each live try-on of a judge's own photo costs 1 credit (2 if our
+  check retries). Set `HTF_LIVE_BUDGET` to cap live try-ons per server run; over the cap the page says so and
+  the size guide keeps working. Sample figures never spend a credit.
 - The colour check catches wrong colours and "nothing placed", not smeared prints or broken logos. The care
   label says so and asks the shopper to compare the zoom with the product photo.
 - Thresholds (blur, light, Delta E) are set on our own images and a few phone photos, not a dataset.
