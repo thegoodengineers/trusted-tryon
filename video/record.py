@@ -49,7 +49,7 @@ def try_on(page, slow=True):
     page.wait_for_timeout(800 if slow else 0)
     page.check("#adult"); page.wait_for_timeout(500 if slow else 0)
     page.check("#consent"); page.wait_for_timeout(500 if slow else 0)
-    page.set_input_files("#photo", str(ROOT / "static/models/asha.png")); page.wait_for_timeout(600 if slow else 0)
+    page.set_input_files("#photo", str(ROOT / "static/models/photo-a.jpg")); page.wait_for_timeout(600 if slow else 0)
     page.click("#go")
 
 
@@ -58,7 +58,7 @@ def app_consent(page):
     glide(page, "#tryHead", 1400, 200); page.wait_for_timeout(700)
     page.check("#adult"); page.wait_for_timeout(900)
     page.check("#consent"); page.wait_for_timeout(900)
-    page.set_input_files("#photo", str(ROOT / "static/models/asha.png"))
+    page.set_input_files("#photo", str(ROOT / "static/models/photo-a.jpg"))
 
 
 def app_tryon(page):

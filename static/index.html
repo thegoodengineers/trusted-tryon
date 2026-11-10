@@ -50,8 +50,11 @@
           <label class="check"><input type="checkbox" id="consent"> I agree to it being sent to a try-on service to make this preview.
             <a href="#privacy">What happens to it</a></label>
           <button class="go" id="go" type="button">See it on me</button>
-          <p class="or">No photo handy? <button class="link" type="button" data-sample="asha">Use sample figure A</button>
-            or <button class="link" type="button" data-sample="ravi">sample figure B</button> (our own drawings, not real people).</p>
+          <p class="or">No photo handy? Try a sample shopper:
+            <button class="link" type="button" data-sample="photo-a">sample photo 1</button>,
+            <button class="link" type="button" data-sample="photo-b">2</button> or
+            <button class="link" type="button" data-sample="photo-c">3</button>
+            (free stock photos from Unsplash, <a href="#credits">credited below</a>).</p>
         </div>
         <div id="haveStep" hidden>
           <p>Using your photo for every item on this visit. <button class="link" type="button" id="forget">Forget my photo</button></p>
@@ -115,7 +118,11 @@
     written to disk here. To make the preview it is sent to the Clothsy AI try-on service, which keeps uploaded photos for up
     to 35 days and then deletes them. Photos are shrunk and re-saved first, which removes location data.
     Every result is an AI-generated preview and is labelled as one.</p>
-  <p class="small">Product images and sample figures are our own drawings. Built for HackTheFashion Global'26 by The Good Engineers.</p>
+  <p class="small" id="credits">Sample shoppers: free-licence stock photos from Unsplash, used under the
+    <a href="https://unsplash.com/license">Unsplash License</a>. Sample photos 1 and 2 by
+    <a href="https://unsplash.com/@thisismcfollis">McFollis</a>, sample photo 3 by
+    <a href="https://unsplash.com/@ydcphotography">Devin Santiago</a>. Product images are our own drawings.
+    Built for HackTheFashion Global'26 by The Good Engineers.</p>
 </footer>
 <script src="/static/app.js"></script>
 </body>

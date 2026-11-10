@@ -11,6 +11,7 @@ import argparse
 import csv
 import datetime
 import os
+import pathlib
 import platform
 import statistics
 import subprocess
@@ -44,7 +45,7 @@ def run(server, pairs):
     for model in dict.fromkeys(m for m, _ in pairs):
         # A model is one of our sample figures, or a path to a consenting adult's photo kept outside the repo.
         is_path = os.path.isfile(model)
-        photo = open(model if is_path else f"static/models/{model}.png", "rb").read()
+        photo = open(model if is_path else next(pathlib.Path("static/models").glob(f"{model}.*")), "rb").read()
         label = "own-photo" if is_path else model  # never write a personal file path into results
         t = time.perf_counter()
         up = web.post("/api/photo", files={"photo": ("p.png", photo, "image/png")}, data={"consent": "true", "adult": "true"})

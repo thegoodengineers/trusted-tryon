@@ -40,7 +40,7 @@ live_spent = [0]
 
 def _sample_hashes():
     out = {}
-    for f in sorted((HERE / "static/models").glob("*.png")):
+    for f in sorted(p for p in (HERE / "static/models").iterdir() if p.suffix in (".png", ".jpg")):
         _, clean = checks.photo_check(f.read_bytes())
         out[hashlib.sha256(clean).hexdigest()] = f.stem
     return out

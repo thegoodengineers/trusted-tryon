@@ -27,7 +27,7 @@ async function init() {
   if (new URLSearchParams(location.search).get("demo") === "1") {  // judges' one-click story: sample figure + size check
     $("chest").value = 92; $("waist").value = 84; $("hip").value = 96;
     await checkFit();
-    document.querySelector('[data-sample="asha"]').click();
+    document.querySelector('[data-sample="photo-a"]').click();
   }
 }
 
@@ -185,7 +185,7 @@ $("again").addEventListener("click", () => start(false));
 document.querySelectorAll("[data-sample]").forEach((b) => b.addEventListener("click", async () => {
   $("error").textContent = "";
   try {
-    const blob = await (await fetch(`/static/models/${b.dataset.sample}.png`)).blob();
+    const blob = await (await fetch(`/static/models/${b.dataset.sample}.jpg`)).blob();
     await sendPhoto(blob, true);
     await start(false);
   } catch (e) { $("error").textContent = e.message; }
