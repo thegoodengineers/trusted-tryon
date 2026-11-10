@@ -14,7 +14,7 @@
 - [x] Screenshots in `docs/screenshots/` from `tools/screenshots.py`.
 
 ## To do
-1. [ ] Watch `video/build/final.mp4` (rebuild: `cd video; python narrate.py; python record.py; python assemble.py`).
+1. [ ] Watch `docs/demo-video-draft.mp4` (2:30, built on the mock) (rebuild: `cd video; python narrate.py; python record.py; python assemble.py`).
    It must be 1-3 minutes. Note anything that drags.
 2. [ ] After Chirag runs the live benchmark: record one **live** try-on (sample figure, not a real person) and swap it
    in for scene 5, and change the narration on scene 9 to say it's live. Update the proof card numbers only from `results/LATENCY.md`.
