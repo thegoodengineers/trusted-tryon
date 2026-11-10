@@ -76,3 +76,20 @@ def test_mock_is_labelled_and_needs_no_key():
     png = open("static/models/asha.png", "rb").read()
     r = m.run(m.upload(png, "image/png"), m.upload(open("static/garments/breton-tee.png", "rb").read(), "image/png"), "Tee")
     assert r.status == "success" and r.image[:4] == b"\x89PNG"
+
+
+def test_a_network_drop_while_polling_does_not_lose_a_paid_result():
+    state = {"gets": 0}
+
+    def handler(req):
+        if req.method == "POST":
+            return httpx.Response(202, json={"id": "t9", "status": "pending"})
+        if req.url.path.endswith("/tryons/t9"):
+            state["gets"] += 1
+            if state["gets"] <= 6:  # longer than one call's own retries: a real outage
+                raise httpx.ConnectError("getaddrinfo failed")
+            return httpx.Response(200, json={"id": "t9", "status": "success", "resultUrl": "https://api.example/i/x.png"})
+        return httpx.Response(200, content=b"IMG")
+
+    r = make(handler).run("p", "g", "Tee")
+    assert r.status == "success" and r.image == b"IMG"

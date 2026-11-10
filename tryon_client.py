@@ -91,7 +91,15 @@ class ClothsyClient:
     def wait(self, tryon_id):
         polls, deadline = 0, time.monotonic() + self.give_up_after
         while True:
-            body = self._call("GET", f"/tryons/{tryon_id}").json()
+            try:
+                body = self._call("GET", f"/tryons/{tryon_id}").json()
+            except TryOnError as e:
+                # The try-on keeps running (and is paid for) even if our connection drops, so keep polling
+                # until the deadline instead of losing a result we already paid for.
+                if e.code != "NETWORK" or time.monotonic() > deadline:
+                    raise
+                self.sleep(self.poll_every)
+                continue
             polls += 1
             if body["status"] != "pending":
                 return body, polls
@@ -108,7 +116,7 @@ class ClothsyClient:
         t1 = time.perf_counter()
         res = Result(body["status"], message=body.get("message", ""), tryon_id=started["id"], polls=polls)
         if body["status"] == "success":
-            res.image = self.http.get(body["resultUrl"]).content  # the image URL needs no key; same client is fine
+            res.image = self._call("GET", body["resultUrl"], attempts=6).content  # paid for: try hard; the URL lives 24 h
         res.timings = {"generate": t1 - t0, "download": time.perf_counter() - t1}
         res.retries = self.retries
         return res

@@ -10,7 +10,29 @@ Built for [HackTheFashion Global'26](https://hackthefashion-global26.devpost.com
 by Chirag, Bhumika, Ayush and Abhijeet (The Good Engineers). Try-on by the
 [Clothsy AI Try-on API](https://clothsyai.fabricvton.com/docs/api) from FabricVTON.
 
-![The product page after a try-on: result, care label with checks, size guide](docs/screenshots/tryon-1440-top.png)
+![A real try-on from the Clothsy AI API: a sample shopper in our block-print kurta, with the care label below](docs/screenshots/tryon-1440-top.png)
+
+## Real results from the Clothsy AI API (10 Nov 2026)
+Measured by `python scripts/live_check.py --sample photo-a,photo-c --n 8` ([`results/LATENCY.md`](results/LATENCY.md)):
+
+| Live try-ons | Made an image | p50, click to checked result | p95 | AI label in the file | Cached repeat |
+|---|---|---|---|---|---|
+| 8 (2 sample photos x 4 garments) | **8 of 8** | **19.79 s** | **24.76 s** | 8 of 8 | 0.0109 s (median) |
+
+- Our colour check passed 6 and held back 2 at the time. Both held-back images were in fact right (navy stripes
+  over a black sweater; a red dress whose re-rendered arms diluted the measure). So we added a second,
+  person-only test. Now all 8 real results pass, and a wrong-colour version of every one is held back
+  ([`results/RECHECK.md`](results/RECHECK.md), `tests/test_live_recorded.py`). The thresholds were set on these
+  same 8 images, so treat that as a first calibration, not a benchmark.
+- The API refused our drawn figures (8 of 8, `PERSON_PHOTO_REJECTED`, no credit used), as its safety rule says.
+  One accepted try-on was lost to a network drop mid-poll (1 credit). The client now keeps polling through outages.
+- Credits: 20 at the start, **9 used** (8 measured + 1 lost), 11 left. The results are kept byte for byte in
+  `results/live/`, so the demo, the screenshots and the video replay them without spending again.
+
+**Sample shoppers are free-licence stock photos with credit**: three photos from Unsplash under the
+[Unsplash License](https://unsplash.com/license), by [McFollis](https://unsplash.com/@thisismcfollis) (sample
+photos 1 and 2) and [Devin Santiago](https://unsplash.com/@ydcphotography) (sample photo 3). Details, links and
+checksums: [`assets/CREDITS.md`](assets/CREDITS.md).
 
 ## Why it matters
 - Shoppers return clothes when the item turns out different from what they expected. A try-on that
@@ -24,23 +46,20 @@ by Chirag, Bhumika, Ayush and Abhijeet (The Good Engineers). Try-on by the
   screen-reader users, linked to the image and announced when ready.
 
 ## For judges, start here
-- **One click, no photo needed:** run it (below) and open `http://localhost:8790/?demo=1`. It uses our own
-  drawn sample figure, runs a try-on, and fills in the size guide.
-- **Works today without a key** on a clearly labelled mock (the page header says *mock*, every mock image is
-  stamped "MOCK - not real"). Set `HTF_TRYON_API_KEY` and the same code calls the real API.
-- **Live API, 10 Nov 2026 (key set, measured):** the key works (`GET /account`: 20 credits). All 8 live try-on
-  requests with our drawn sample figures were **refused by the API before generating** (`PERSON_PHOTO_REJECTED`:
-  not a photo of one adult), no credit used, and our page showed the documented message. That is the API's
-  safety rule doing its job, so in live mode the drawings now go to our labelled stand-in and only real photos reach the API.
-  See `results/LATENCY.md`.
-- **Live in one command:** `python scripts/live_check.py --photo <a consenting adult's photo, outside the repo> --n 6`
-  checks the key and credits, runs the try-ons through the full pipeline, writes `results/`, prints p50/p95, and
-  exits non-zero on any problem. The photo is never copied or committed; results only say "own-photo".
-- **Tests:** 35 pytest tests, including the real-API client against a fake server that follows the documented
+- **One click, no photo needed:** run it (below) and open `http://localhost:8790/?demo=1`. Sample photo 1 is
+  tried on with the kurta, and you see the real Clothsy AI result, replayed with no key needed. The size guide is
+  filled in too.
+- **Without a key**, sample photos replay the recorded live results. Any other photo gets a clearly labelled
+  mock (the header says *mock*, and every mock image is stamped "MOCK - not real"). Set `HTF_TRYON_API_KEY`
+  and the same code calls the real API.
+- **Live in one command:** `python scripts/live_check.py --sample photo-a,photo-c --n 8` (or `--photo <a
+  consenting adult's photo, outside the repo>`). It checks the key and credits, runs the try-ons through the full
+  pipeline, writes `results/`, prints p50/p95, and exits non-zero on any problem.
+- **Tests:** 44 pytest tests, including our check against the 8 real API results,, including the real-API client against a fake server that follows the documented
   contract (retry 429 with `Retry-After` and the same `Idempotency-Key`, no retry on 4xx, poll until done).
 - **Accessibility:** 0 axe-core problems on our page, as first loaded and with a finished try-on, at 1440,
   1024 and 400 px (checked in CI with our own Ctrl+A11y tool).
-- **Latency:** `results/LATENCY.md`, written only by `python bench.py`.
+- **Latency:** `results/LATENCY.md`, written only by `bench.py` and `scripts/live_check.py`.
 
 ## How it uses the try-on API
 All API calls live in [`tryon_client.py`](tryon_client.py).
@@ -75,8 +94,9 @@ under it shows where you land.
 - Shopper photos and results live only in the server's memory for the visit (30 minutes, or **Forget my
   photo**). Never written to disk here. The API keeps uploads up to 35 days, then deletes them (its docs).
 - Every result is captioned "AI-generated try-on. The real fit may differ." and its alt text says so.
-- **Every image in this repo is our own drawing** ([`tools/make_assets.py`](tools/make_assets.py)): five
-  product shots and two non-photoreal sample figures. No photos of real people. Font: Archivo (SIL OFL).
+- **Images:** the product shots are our own drawings ([`tools/make_assets.py`](tools/make_assets.py)). The sample
+  shoppers are **free-licence stock photos from Unsplash, with credit** ([`assets/CREDITS.md`](assets/CREDITS.md)).
+  Try-on results in `results/live/` were made from them by the Clothsy AI API. Font: Archivo (SIL OFL).
 
 ## Run it
 ```
@@ -102,9 +122,10 @@ Appends to `results/latency.csv` (wall time, attempts, verdict, colour score, ca
 retries, commit, machine) and rewrites `results/LATENCY.md`.
 
 ## Known limits (honest status)
-- **No live image yet.** The live API refuses drawings, and we will only use a photo of a team member who is 18+
-  and agrees. Live latency and fidelity numbers come from `scripts/live_check.py --photo ...` with that photo.
-  CI never has a key and always runs on the mock.
+- **Small live sample:** 8 live try-ons, 2 photos, 4 garments. That is enough to show the pipeline works on the
+  real API and to calibrate our check, not to benchmark the API. CI never has a key and always runs on the mock.
+- The Unsplash License covers use of the photos but doesn't document a model release. We use them only as
+  clearly credited sample shoppers ([`assets/CREDITS.md`](assets/CREDITS.md)).
 - **Hosted testing on our key costs credits:** each live try-on of a judge's own photo costs 1 credit (2 if our
   check retries). Set `HTF_LIVE_BUDGET` to cap live try-ons per server run; over the cap the page says so and
   the size guide keeps working. Sample figures never spend a credit.

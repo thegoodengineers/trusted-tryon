@@ -27,10 +27,7 @@ Deadline: **25 Nov 2026, 5:00 PM IST** on Devpost. Code freeze **23 Nov, 9 PM IS
    team, 20 free credits, need ~100 for the latency report and judges' testing. Ask for a **key with its own
    allowance for judges** (the API supports keys with `scope: "key"`), and ask them to confirm Clothsy AI is the required API.
 3. [x] Key set and checked (10 Nov): 20 credits. The API refuses our drawn figures (`PERSON_PHOTO_REJECTED`), no credit used.
-4. [ ] **Real numbers need one real photo.** A team member who is 18+ and agrees: a full-length, plain-background
-   photo, saved OUTSIDE the repo. Write "I agree to my photo being used for our try-on tests and demo video" with your
-   name and the date in your own task file. Then `python scripts/live_check.py --photo <path> --n 8` (up to 8 credits).
-   Keep about 4 credits for judges. If it answers `GARMENT_REJECTED`, tell Ayush (product photos we have rights to). Commit `results/`. Then fill the
-   {FILL} lines in `docs/DEVPOST.md` from `results/LATENCY.md` and update the proof card in `video/scenes.html`.
+4. [x] Real numbers (10 Nov): 8 of 8 live try-ons on credited Unsplash sample photos, p50 19.79 s, p95 24.76 s
+   (`results/LATENCY.md`). 9 credits used, 11 left. Keep at least 4 for judges' testing.
 5. [ ] **Submit on Devpost** (the draft is already started). Paste `docs/DEVPOST.md`, upload
    `docs/screenshots/`, add the YouTube link from Ayush. Submit at least an hour early.

@@ -1,0 +1,61 @@
+{
+ "attempts": [
+  {
+   "n": 1,
+   "status": "success",
+   "colour_score": 1.0,
+   "ok": true,
+   "seconds": 19.61,
+   "polls": 5,
+   "http_retries": 0
+  }
+ ],
+ "total_seconds": 20.09,
+ "mode": "live",
+ "cant_tell": [
+  "How it fits you. The picture is not drawn to scale, so use the size guide below.",
+  "Fine print and logo detail. Zoom in and compare with the product photo yourself.",
+  "How the fabric feels, stretches or drapes when you move."
+ ],
+ "drawing_in_live": false,
+ "findings": [
+  {
+   "id": "colour",
+   "ok": true,
+   "level": "pass",
+   "text": "All 2 main colours of the product appear in the try-on: cream and navy."
+  },
+  {
+   "id": "applied",
+   "ok": true,
+   "level": "pass",
+   "text": "The garment was placed on your photo."
+  },
+  {
+   "id": "label",
+   "ok": true,
+   "level": "pass",
+   "text": "The image file is labelled as AI-generated (IPTC metadata)."
+  }
+ ],
+ "colour_score": 1.0,
+ "verdict": "shown",
+ "swatches": [
+  {
+   "hex": "#faeed4",
+   "name": "cream",
+   "share": 0.515,
+   "found": true
+  },
+  {
+   "hex": "#1b2a5e",
+   "name": "navy",
+   "share": 0.485,
+   "found": true
+  }
+ ],
+ "description": "AI-generated preview of you wearing the Breton stripe tee. Ecru and navy stripes, heavy cotton jersey. Regular fit. Our check passed. The product's main colours, cream and navy, all appear in the preview. The picture is not drawn to scale, so it can't show fit.",
+ "recorded_at": "2026-11-10",
+ "first_verdict": "shown",
+ "first_colour_score": 1.0
+}

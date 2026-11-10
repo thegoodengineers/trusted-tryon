@@ -1,0 +1,61 @@
+{
+ "attempts": [
+  {
+   "n": 1,
+   "status": "success",
+   "colour_score": 1.0,
+   "ok": true,
+   "seconds": 24.45,
+   "polls": 7,
+   "http_retries": 0
+  }
+ ],
+ "total_seconds": 24.56,
+ "mode": "live",
+ "cant_tell": [
+  "How it fits you. The picture is not drawn to scale, so use the size guide below.",
+  "Fine print and logo detail. Zoom in and compare with the product photo yourself.",
+  "How the fabric feels, stretches or drapes when you move."
+ ],
+ "drawing_in_live": false,
+ "findings": [
+  {
+   "id": "colour",
+   "ok": true,
+   "level": "pass",
+   "text": "All 2 main colours of the product appear in the try-on: mustard and brick red."
+  },
+  {
+   "id": "applied",
+   "ok": true,
+   "level": "pass",
+   "text": "The garment was placed on your photo."
+  },
+  {
+   "id": "label",
+   "ok": true,
+   "level": "pass",
+   "text": "The image file is labelled as AI-generated (IPTC metadata)."
+  }
+ ],
+ "colour_score": 1.0,
+ "verdict": "shown",
+ "swatches": [
+  {
+   "hex": "#e8b234",
+   "name": "mustard",
+   "share": 0.764,
+   "found": true
+  },
+  {
+   "hex": "#b02626",
+   "name": "brick red",
+   "share": 0.203,
+   "found": true
+  }
+ ],
+ "description": "AI-generated preview of you wearing the Block-print cotton kurta. Hand-block printed cotton in mustard with a madder-red motif. Straight cut, below the hip. Our check passed. The product's main colours, mustard and brick red, all appear in the preview. The picture is not drawn to scale, so it can't show fit.",
+ "recorded_at": "2026-11-10",
+ "first_verdict": "shown",
+ "first_colour_score": 1.0
+}

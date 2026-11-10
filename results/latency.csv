@@ -37,3 +37,12 @@ when,commit,machine,mode,model,garment,photo_upload_s,server_total_s,wall_s,atte
 2026-11-10T19:32:47,eb04ccd,Windows-AMD64-Chirag,live,ravi,breton-tee,0.447,1.72,1.883,0,PERSON_PHOTO_REJECTED,,,,0,0
 2026-11-10T19:33:01,eb04ccd,Windows-AMD64-Chirag,live,ravi,polka-wrap-dress,0.447,13.62,13.81,0,PERSON_PHOTO_REJECTED,,,,0,0
 2026-11-10T19:33:02,eb04ccd,Windows-AMD64-Chirag,live,ravi,denim-jacket,0.447,1.18,1.266,0,PERSON_PHOTO_REJECTED,,,,0,0
+2026-11-10T19:57:34,ad7f180,Windows-AMD64-Chirag,live,photo-a,block-print-kurta,2.484,35.48,35.526,0,NETWORK,,,,0,0
+2026-11-10T19:59:57,4834dea,Windows-AMD64-Chirag,live,photo-a,block-print-kurta,1.399,20.47,20.638,1,shown,1.0,True,0.0117,5,0
+2026-11-10T20:00:17,4834dea,Windows-AMD64-Chirag,live,photo-a,breton-tee,1.399,20.09,20.226,1,shown,1.0,True,0.0108,5,0
+2026-11-10T20:00:37,4834dea,Windows-AMD64-Chirag,live,photo-a,polka-wrap-dress,1.399,19.63,19.791,1,shown,1.0,True,0.0095,5,0
+2026-11-10T20:00:57,4834dea,Windows-AMD64-Chirag,live,photo-a,denim-jacket,1.399,20.01,20.041,1,shown,1.0,True,0.0109,5,0
+2026-11-10T20:01:22,4834dea,Windows-AMD64-Chirag,live,photo-c,block-print-kurta,0.682,24.56,24.76,1,shown,1.0,True,0.011,7,0
+2026-11-10T20:01:42,4834dea,Windows-AMD64-Chirag,live,photo-c,breton-tee,0.682,19.37,19.431,1,held back,0.515,True,0.0112,5,0
+2026-11-10T20:02:00,4834dea,Windows-AMD64-Chirag,live,photo-c,polka-wrap-dress,0.682,18.25,18.402,1,held back,0.101,True,0.0105,5,0
+2026-11-10T20:02:19,4834dea,Windows-AMD64-Chirag,live,photo-c,denim-jacket,0.682,19.08,19.214,1,shown,1.0,True,0.0119,5,0
