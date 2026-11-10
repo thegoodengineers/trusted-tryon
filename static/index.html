@@ -19,7 +19,7 @@
       <figure id="figure">
         <div class="frame" id="frame">
           <img id="productImg" alt="">
-          <img id="resultImg" alt="" hidden>
+          <img id="resultImg" alt="" aria-describedby="desc" hidden>
           <img id="photoImg" alt="" hidden>
         </div>
         <figcaption id="caption">Product photo</figcaption>
@@ -65,8 +65,11 @@
 
   <section class="label" id="label" aria-labelledby="labelHead" hidden>
     <div class="stitch">
+      <p class="weave" aria-hidden="true">Trusted try-on <span>care label</span></p>
       <h2 id="labelHead">What this try-on can and can't tell you</h2>
       <p class="stamp" id="stamp"></p>
+      <h3 id="swatchHead">The product's colours, found in your preview</h3>
+      <ul class="swatches" id="swatches" aria-labelledby="swatchHead"></ul>
       <div class="cols">
         <div>
           <h3>We checked</h3>
@@ -75,10 +78,16 @@
         <div>
           <h3>It can't tell you</h3>
           <ul class="cant" id="cant"></ul>
+        </div>
+        <div class="tags">
+          <h3>Your size</h3>
+          <p class="sizetag" id="sizetag"><a href="#fitHead">Add your measurements</a> to check the size chart.</p>
           <h3>Speed</h3>
           <p class="speed" id="speed"></p>
         </div>
       </div>
+      <h3>In words</h3>
+      <p class="desc" id="desc"></p>
     </div>
   </section>
 

@@ -122,13 +122,17 @@ def result_check(garment: bytes, person: bytes, result: bytes):
     found = [share_near(region, rgb) >= FOUND_RATIO * share for rgb, share in colours]
     weight = sum(s for _, s in colours) or 1
     score = sum(s for (_, s), f in zip(colours, found) if f) / weight
-    missing = ["#%02x%02x%02x" % tuple(c) for (c, _), f in zip(colours, found) if not f]
+    swatches = [{"hex": "#%02x%02x%02x" % tuple(c), "name": colour_name(c), "share": round(s, 3), "found": bool(f)}
+                for (c, s), f in zip(colours, found)]
+    missing = [w for w in swatches if not w["found"]]
     out = []
     if not missing:
-        out.append(finding("colour", True, f"All {len(colours)} main colours of the product appear in the try-on."))
+        out.append(finding("colour", True, f"All {len(colours)} main colours of the product appear in the try-on: "
+                           f"{_and([w['name'] for w in swatches])}."))
     else:
         out.append(finding("colour", False, f"{len(missing)} of the product's {len(colours)} main colours "
-                           f"are missing from the try-on ({', '.join(missing)}).", "fail"))
+                           f"{'is' if len(missing) == 1 else 'are'} missing from the try-on: "
+                           f"{_and([w['name'] for w in missing])}.", "fail"))
     diff = float(diff_px.mean())
     if diff < CHANGED:
         out.append(finding("applied", False, "The try-on looks almost the same as your photo: "
@@ -140,8 +144,42 @@ def result_check(garment: bytes, person: bytes, result: bytes):
     else:
         out.append(finding("label", False, "No AI label in the file (the mock never adds one). "
                            "We caption it as AI-generated on screen anyway.", "warn"))
-    return {"colour_score": round(score, 3), "findings": out,
+    return {"colour_score": round(score, 3), "findings": out, "swatches": swatches,
             "verdict_ok": all(f["ok"] for f in out if f["id"] in ("colour", "applied"))}
+
+
+# Plain colour names a shopper would use, for screen-reader descriptions and the swatch labels.
+NAMES = {"white": (250, 250, 250), "cream": (240, 232, 208), "black": (25, 25, 25), "grey": (128, 128, 128),
+         "light grey": (200, 200, 200), "navy": (27, 40, 90), "blue": (40, 90, 200), "denim blue": (60, 88, 140),
+         "sky blue": (120, 180, 230), "bottle green": (30, 105, 72), "green": (60, 160, 70), "olive": (110, 115, 50),
+         "red": (195, 30, 45), "brick red": (170, 40, 38), "maroon": (110, 20, 35), "pink": (235, 140, 170),
+         "orange": (235, 120, 30), "mustard": (225, 170, 50), "yellow": (245, 220, 60), "brown": (110, 70, 40),
+         "beige": (215, 190, 150), "purple": (110, 50, 140)}
+_NAME_LAB = {n: to_lab(np.array(c, float)) for n, c in NAMES.items()}
+
+
+def colour_name(rgb):
+    lab = to_lab(np.array(rgb, float))
+    return min(_NAME_LAB, key=lambda n: float(np.linalg.norm(_NAME_LAB[n] - lab)))
+
+
+def _and(items):
+    items = list(dict.fromkeys(items))
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def describe(garment, check, verdict):
+    """A plain-language description of a try-on result for screen-reader users (and anyone else). It only states
+    what we know: the product's own description, what our check measured, and the verdict. It never describes the
+    shopper's body, and fit comes from the size guide, which the page appends."""
+    names = _and([w["name"] for w in check["swatches"]]) if check.get("swatches") else "its colours"
+    head = {"shown": "Our check passed", "retried": "The first try didn't match the product, the second did",
+            "held back": "Our check found this preview does not match the product, so it is held back"}[verdict]
+    missing = [w["name"] for w in check.get("swatches", []) if not w["found"]]
+    colour = (f"The product's main colours, {names}, all appear in the preview." if not missing
+              else f"Missing from the preview: {_and(missing)}.")
+    return (f"AI-generated preview of you wearing the {garment['title']}. {garment['about']} "
+            f"{head}. {colour} The picture is not drawn to scale, so it can't show fit.")
 
 
 CANT_TELL = [

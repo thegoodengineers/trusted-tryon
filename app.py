@@ -235,7 +235,8 @@ def run_job(job, s):
     if best:
         res, c = best
         verdict = "shown" if c["verdict_ok"] and len(attempts) == 1 else "retried" if c["verdict_ok"] else "held back"
-        outcome.update(image=res.image, findings=c["findings"], colour_score=c["colour_score"], verdict=verdict)
+        outcome.update(image=res.image, findings=c["findings"], colour_score=c["colour_score"], verdict=verdict,
+                       swatches=c["swatches"], description=checks.describe(g, c, verdict))
     elif "error" not in job:
         job["error"] = {"code": "FAILED", "message": attempts[-1].get("message") or "The try-on didn't finish. No credit was used."}
     job.update(outcome, done=True)

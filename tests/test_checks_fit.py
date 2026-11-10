@@ -68,3 +68,26 @@ def test_fit_recommends_and_explains():
     dress = CATALOG["polka-wrap-dress"]
     low = fit.recommend(dress, {"chest": 84, "waist": 90, "hip": 92})  # waist far bigger than the cut allows
     assert low["confidence"] == "low" and "waist" in low["why"]
+
+
+def test_every_garment_runs_xs_to_4xl_and_the_edge_is_said_plainly():
+    for g in CATALOG.values():
+        assert list(g["chart"]) == ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"]
+    big = fit.recommend(CATALOG["breton-tee"], {"chest": 112, "waist": 104})
+    assert big["size"] == "2XL" and big["confidence"] == "high"
+    beyond = fit.recommend(CATALOG["polka-wrap-dress"], {"chest": 150, "waist": 130})
+    assert beyond["size"] == "4XL" and "only goes from XS to 4XL" in beyond["why"]
+
+
+def test_description_names_colours_and_never_claims_fit():
+    person, garment = open("static/models/asha.png", "rb").read(), open("static/garments/block-print-kurta.png", "rb").read()
+    m = MockTryOn()
+    c = checks.result_check(garment, person, m.run(m.upload(person), m.upload(garment), "k").image)
+    assert [w["name"] for w in c["swatches"]] == ["mustard", "brick red"]
+    text = checks.describe(CATALOG["block-print-kurta"], c, "shown")
+    assert "AI-generated preview" in text and "mustard and brick red" in text and "can't show fit" in text
+    m2 = MockTryOn()
+    g2 = m2.upload(garment)
+    m2.fault_once.add(g2)
+    bad = checks.result_check(garment, person, m2.run(m2.upload(person), g2, "k").image)
+    assert "Missing from the preview" in checks.describe(CATALOG["block-print-kurta"], bad, "held back")

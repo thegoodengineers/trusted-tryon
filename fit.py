@@ -42,6 +42,9 @@ def recommend(garment, body):
         confidence = "low"
         bad = ", ".join(f"{x['measure'].lower()} would be {x['state']}" for x in rows if x["state"] != "as designed")
         why = f"No size fits every measurement. {size} is closest, but your {bad}."
+        edge = sizes[-1] if any(x["state"] == "tight" for x in rows) else sizes[0]
+        if size == edge:
+            why += f" This item only goes from {sizes[0]} to {sizes[-1]}; we'd rather say so than guess."
     return {"size": size, "confidence": confidence, "rows": rows, "why": why}
 
 

@@ -49,7 +49,7 @@ function renderProduct() {
   $("productImg").src = `/static/garments/${g.id}.png`;
   $("productImg").alt = `${g.title}, product photo`;
   $("sizes").innerHTML = Object.keys(g.chart).map((s, i) =>
-    `<label><input type="radio" name="size" value="${s}"${i === 1 ? " checked" : ""}><span id="size-${s}">${s}</span></label>`).join("");
+    `<label><input type="radio" name="size" value="${s}"${s === "M" ? " checked" : ""}><span id="size-${s}">${s}</span></label>`).join("");
   $("rail").innerHTML = state.catalog.map((x) =>
     `<li><a href="?g=${x.id}"${x.id === g.id ? ' aria-current="page"' : ""}><img src="/static/garments/${x.id}.png" alt=""><span>${esc(x.title)}</span></a></li>`).join("");
   resetResult();
@@ -116,7 +116,7 @@ async function follow(job) {
   for (let i = 0; i < 160; i++) {
     const j = await api(`/api/tryon/${job}`);
     $("steps").innerHTML = '<li class="done">Photo checked</li>' +
-      (j.cached ? '<li class="done">Already made on this visit, shown from memory</li>' : "") +
+      (j.cached ? '<li class="done">Made earlier for this photo, shown from memory</li>' : "") +
       j.steps.map((s) => `<li class="${s.state}">${esc(s.text)}</li>`).join("");
     if (j.done) return showResult(job, j);
     await new Promise((r) => setTimeout(r, 900));
@@ -156,13 +156,21 @@ function showResult(job, j) {
   }
   const photoF = (state.photoFindings || []).filter((f) => f.level !== "pass" || f.id === "light");
   $("facts").innerHTML = [...photoF, ...j.findings].map((f) => `<li class="${f.level}">${esc(f.text)}</li>`).join("");
+  $("swatches").innerHTML = (j.swatches || []).map((w) =>
+    `<li class="${w.found ? "found" : "missing"}"><span class="dot" style="background:${w.hex}"></span>${esc(w.name)}` +
+    `<span class="visually-hidden">${w.found ? ": found" : ": missing"}</span></li>`).join("");
+  state.description = j.description || "";
+  describe();
   $("cant").innerHTML = j.cant_tell.map((t) => `<li>${esc(t)}</li>`).join("");
   const n = j.attempts.length;
   $("speed").textContent = j.cached
-    ? `Instant: made earlier on this visit (first time took ${j.total_seconds} s).`
+    ? `Instant: this photo and item were made earlier (first time took ${j.total_seconds} s).`
     : `Ready in ${j.total_seconds} s, ${n} ${n === 1 ? "attempt" : "attempts"}` +
       (n > 1 ? ` (${j.attempts.map((a) => a.seconds + " s").join(" + ")})` : "") + ".";
   $("label").hidden = false;
+  $("steps").insertAdjacentHTML("beforeend", `<li class="done">${j.verdict === "held back"
+    ? "Done. This preview didn't match the product, so it's held back. The care label below says why."
+    : "Done. Your preview is shown, with its care label below."}</li>`);
 }
 
 $("slider").addEventListener("input", (e) => $("photoImg").style.setProperty("--reveal", `${e.target.value}%`));
@@ -189,11 +197,23 @@ $("forget").addEventListener("click", async () => {
   $("steps").innerHTML = "<li class=\"done\">Your photo and try-ons are deleted from this server.</li>";
 });
 
+// The words under the result: what we know about it, plus fit from the size chart once measurements are in.
+function describe() {
+  const f = state.fit;
+  const fitText = f && f.size ? ` Size guide: ${f.size}, ${f.confidence} confidence. ${f.why}` : " Add your measurements to hear which size fits.";
+  $("desc").textContent = (state.description || "") + fitText;
+  $("sizetag").innerHTML = f && f.size
+    ? `<b>${f.size}</b> <span class="conf ${f.confidence}">${f.confidence} confidence</span>`
+    : '<a href="#fitHead">Add your measurements</a> to check the size chart.';
+}
+
 async function checkFit() {
   const body = {};
   for (const k of ["chest", "waist", "hip"]) if ($(k).value) body[k] = Number($(k).value);
   const r = await api("/api/fit", { method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ garment: state.g.id, body }) });
+  state.fit = r;
+  describe();
   document.querySelectorAll(".sizes span").forEach((s) => s.classList.remove("rec"));
   if (!r.size) { $("fitOut").innerHTML = `<p class="verdict">${esc(r.why)}</p>`; return; }
   $(`size-${r.size}`).classList.add("rec");
