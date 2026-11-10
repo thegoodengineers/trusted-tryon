@@ -61,13 +61,13 @@ def run(server, pairs):
             job2 = web.post("/api/tryon", json={"session": sid, "garment": gid}).json()["job"]
             cached = web.get(f"/api/tryon/{job2}").json().get("cached", False)
             cached_s = time.perf_counter() - t
-            label = next((f["ok"] for f in j.get("findings", []) if f["id"] == "label"), "")
+            ai = next((f["ok"] for f in j.get("findings", []) if f["id"] == "label"), "")
             row = {"when": datetime.datetime.now().isoformat(timespec="seconds"), "commit": commit, "machine": machine,
                    "mode": j.get("mode", server.client.mode), "model": label, "garment": gid, "photo_upload_s": round(upload_s, 3),
                    "server_total_s": j.get("total_seconds"), "wall_s": round(wall, 3),
                    "attempts": len(j.get("attempts", [])),
                    "verdict": j.get("verdict") or j.get("error", {}).get("code"), "colour_score": j.get("colour_score"),
-                   "ai_label": label, "cached_repeat_s": round(cached_s, 4) if cached else "",
+                   "ai_label": ai, "cached_repeat_s": round(cached_s, 4) if cached else "",
                    "polls": sum(a.get("polls", 0) for a in j.get("attempts", [])),
                    "http_retries": sum(a.get("http_retries", 0) for a in j.get("attempts", []))}
             rows.append(row)
