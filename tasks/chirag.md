@@ -14,6 +14,7 @@ Deadline: **25 Nov 2026, 5:00 PM IST** on Devpost. Code freeze **23 Nov, 9 PM IS
 ## Done (10 Nov)
 - [x] Found the API: Clothsy AI Try-on API (FabricVTON's own), docs and sign-up in the parent `README.md`.
 - [x] App end to end on the labelled mock; real client written to the docs and tested against a fake server.
+- [x] One-command live check: `python scripts/live_check.py --n 6` (fails loudly without a key).
 - [x] Repo public, CI green (tests, mock benchmark, axe-core 0 problems in two states at 3 widths).
 - [x] Devpost text draft (`docs/DEVPOST.md`), video script and generated draft video, screenshots.
 
@@ -26,7 +27,7 @@ Deadline: **25 Nov 2026, 5:00 PM IST** on Devpost. Code freeze **23 Nov, 9 PM IS
    team, 20 free credits, need ~100 for the latency report. Also ask them to confirm Clothsy AI is the required API.
 3. [ ] **First live try-on by hand** with sample figure A and the kurta. Our garments are drawings; if the API
    answers `GARMENT_REJECTED` or `IMAGE_REJECTED`, tell Ayush (he'll swap in product photos we have rights to).
-4. [ ] **Real numbers:** `python bench.py --real --n 1` (up to 20 credits). Commit `results/`. Then fill the
+4. [ ] **Real numbers:** `python scripts/live_check.py --n 6` (up to 12 credits; it checks key and credits first). Commit `results/`. Then fill the
    {FILL} lines in `docs/DEVPOST.md` from `results/LATENCY.md` and update the proof card in `video/scenes.html`.
 5. [ ] **Submit on Devpost** (the draft is already started). Paste `docs/DEVPOST.md`, upload
    `docs/screenshots/`, add the YouTube link from Ayush. Submit at least an hour early.
