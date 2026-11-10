@@ -6,3 +6,4 @@ video/vo/
 video/build/
 video/renders/
 *.pyc
+video/build.log

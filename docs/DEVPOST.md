@@ -12,7 +12,8 @@ tells you what the picture can't: fit comes from the size chart.
 
 ## Track
 Try-On Commerce. A product-page try-on plus fit and size guidance, built to cut "it looked different"
-returns.
+returns. It also covers part of Fashion for Everyone: every size from XS to 4XL gets the same fit guidance,
+and every result is described in words for blind and low-vision shoppers.
 
 ## About the project
 
@@ -33,12 +34,18 @@ A product page (a demo store with five garments) where you add your own photo on
    there, was the garment actually placed, does the file carry the API's AI-generated label.
 3. A result that fails is **retried once**; if it still fails it is **held back**: blurred, with the reason
    and a "Show it anyway" button. Never a silent bad image.
-4. Every result comes with a **care label**, like the one sewn into clothes: what we checked, what the
-   picture can't tell you (fit, fine print detail, how fabric moves), how long it took, and a stamp:
-   Checked, Checked twice, or Held back.
-5. **Will it fit?** answered from the garment's size chart and the room each cut is designed to have, not
-   from the picture: a suggested size, a confidence level with the reason, and a tape showing where you land.
-6. Your photo lives in server memory for the visit only, never on disk here; "Forget my photo" deletes it
+4. Every result comes with a **care label**, like the one sewn into clothes: the product's colours as swatches
+   marked found or missing, what we checked, what the picture can't tell you (fit, fine print, how fabric
+   moves), your size, how long it took, and a stamp: Checked, Checked twice, or Held back.
+5. **Described in words.** Every result gets a plain-language description for screen readers (and anyone):
+   the garment, the colours our check found, the verdict, and the size guide's answer. It is linked to the
+   image and announced when the result is ready. It never describes the shopper's body.
+6. **Will it fit?** answered from the garment's size chart and the room each cut is designed to have, not
+   from the picture, across XS to 4XL: a suggested size, a confidence level with the reason, and a tape
+   showing where you land. If no size fits, it says so instead of guessing.
+7. **Never waits twice.** The same photo is uploaded once and each garment generated once; replaying the
+   demo or adding the same photo again comes back from memory instantly.
+8. Your photo lives in server memory for the visit only, never on disk here; "Forget my photo" deletes it
    and every result at once.
 
 ### How we built it, and how we use the try-on API
@@ -60,17 +67,20 @@ using the Clothsy AI Try-on API as documented:
 The colour check: a median-cut palette of the garment, then each main colour must cover enough of the area
 that changed between your photo and the result, using CIE76 Delta E in CIELAB.
 
-27 automated tests, including the real-API client against a fake server that follows the documented
+31 automated tests, including the real-API client against a fake server that follows the documented
 contract. GitHub Actions runs the tests, the latency benchmark and an accessibility check: 0 axe-core
 problems on our page, as first loaded and with a finished try-on, at desktop, tablet and phone widths.
 
 ### Latency and accuracy
 `bench.py` runs the full pipeline (upload, try-on, check, retry, cache) and writes every try-on to
 `results/latency.csv`.
-- Live API: median {FILL} s from click to checked result, p90 {FILL} s; {FILL} of {FILL} shown first time,
+- Live API: p50 {FILL} s from click to checked result, p95 {FILL} s; {FILL} of {FILL} shown first time,
   {FILL} retried and passed, {FILL} held back.
 - A repeat of the same photo and garment on one visit comes back from memory in {FILL} s.
-- Our own overhead around the API (mock run, measured): median 0.44 s for 30 try-ons, including the checks.
+- Our own overhead around the API (mock run, measured): p50 0.43 s, p95 0.44 s over 30 try-ons, including the
+  checks; a cached repeat takes 0.0125 s (median).
+- Live numbers come from one command, `python scripts/live_check.py --n 6`, which checks the key and credits,
+  runs the try-ons through the whole pipeline and prints p50/p95.
 
 ### Challenges
 The Devpost pages never named the API, so we found the organiser's public developer API ourselves and built

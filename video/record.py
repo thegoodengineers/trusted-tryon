@@ -75,6 +75,7 @@ def done(page):
 
 def app_label(page):
     done(page); page.wait_for_timeout(600); glide(page, "#label", 1800)
+    page.wait_for_timeout(5500); glide(page, ".tags", 1600, 120)
 
 
 def app_compare(page):
